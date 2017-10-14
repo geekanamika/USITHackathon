@@ -1,6 +1,7 @@
 package com.example.android.hackathon;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,8 +17,16 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -32,6 +41,12 @@ public class MainActivity extends AppCompatActivity {
     private static final String SAVED_INSTANCE_BITMAP = "bitmap";
     private static final String SAVED_INSTANCE_RESULT = "result";
     Bitmap editedBitmap;
+    FirebaseStorage storage;
+    private Uri downloadUri;
+    StorageReference storageRef,imageRef;
+    ProgressDialog progressDialog;
+    UploadTask uploadTask;
+    ImageView imageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +55,10 @@ public class MainActivity extends AppCompatActivity {
 
         Button button = (Button) findViewById(R.id.button);
         scanResults = (TextView) findViewById(R.id.results);
+        //accessing the firebase storage
+        storage = FirebaseStorage.getInstance();
+        //creates a storage reference
+        storageRef = storage.getReference();
         if (savedInstanceState != null) {
             if (savedInstanceState.getString(SAVED_INSTANCE_URI) != null) {
                 imageUri = Uri.parse(savedInstanceState.getString(SAVED_INSTANCE_URI));
@@ -74,7 +93,9 @@ public class MainActivity extends AppCompatActivity {
             // launchMediaScanIntent();
             try {
                 Bitmap bitmap = decodeBitmapUri(this, imageUri);
+                uploadImageFunction();
                 Toast.makeText(this,"photo clicked "+imageUri.toString(),Toast.LENGTH_SHORT).show();
+
             } catch (Exception e) {
                 Toast.makeText(this, "Failed to load Image", Toast.LENGTH_SHORT).show();
                 Log.e(LOG_TAG, e.toString());
@@ -122,5 +143,39 @@ public class MainActivity extends AppCompatActivity {
 
         return BitmapFactory.decodeStream(ctx.getContentResolver()
                 .openInputStream(uri), null, bmOptions);
+    }
+
+    private void uploadImageFunction() {
+        if(imageUri!=null) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMax(100);
+            progressDialog.setMessage("Uploading...");
+            progressDialog.show();
+
+            storageRef = storage.getReference();
+            imageRef = storageRef.child("images/"+imageUri.getLastPathSegment());
+            imageRef.putFile(imageUri)
+                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+
+                        }
+                    })
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Uri downloadUri = taskSnapshot.getDownloadUrl();
+                            Log.e("TAG", "onSuccess: " + downloadUri );
+                            progressDialog.dismiss();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
+                            Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
     }
 }

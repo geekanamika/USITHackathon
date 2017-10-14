@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "247097784957",
+    "firebase_url": "https://hackusit-1eb06.firebaseio.com",
+    "project_id": "hackusit-1eb06",
+    "storage_bucket": "hackusit-1eb06.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:247097784957:android:1f6b574d8a5ea7ef",
+        "android_client_info": {
+          "package_name": "com.example.android.hackathon"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "247097784957-9c3f6m4dn7nrtl9i5d6qqhv2f5022nmp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA65pBdIzqqK44s_GMBn58knhblHm7If30"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
